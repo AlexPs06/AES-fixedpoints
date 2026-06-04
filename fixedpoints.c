@@ -32,9 +32,9 @@ int main(int argc, char const *argv[])
     /* code */
     int maxkeys = 256; // Cambia este valor para probar con más o menos claves
     int maxrounds = 51;
-    // fixedpoints(maxkeys, maxrounds);
-    int max_points = 1; // Cambia este valor para probar con más o menos puntos aleatorios
-    fixedpoints_random_search(max_points, maxrounds);
+    fixedpoints(maxkeys, maxrounds);
+    // int max_points = 1; // Cambia este valor para probar con más o menos puntos aleatorios
+    // fixedpoints_random_search(max_points, maxrounds);
 
     // __m128i test = _mm_set1_epi32(0x228db6c1);
     // __m128i key = _mm_setzero_si128();
@@ -137,9 +137,10 @@ void* fixedpoints_thread(void *arg) {
         key = _mm_set1_epi8(i);
         for (size_t j = 0; j < UINT32_MAX; j++) {
             __m128i input_block = _mm_set1_epi32(j);
+            __m128i output_block = _mm_set1_epi32(j);
 
-            for (size_t k = 0; k < maxrounds; k++) {
-                __m128i output_block = AES_Encrypt_rounds_static_keys(input_block, key, k);
+            for (size_t k = 1; k < maxrounds; k++) {
+    	        output_block = _mm_aesenc_si128 (output_block,key);
                 bool is_fixed_point = compare_m128i(input_block, output_block);
                 if (is_fixed_point) {
                     write_fixedpoint_to_file(input_block, k, key, filename);
@@ -160,7 +161,7 @@ void* fixedpoints_thread(void *arg) {
 
 
 void fixedpoints(int maxkeys, int maxrounds){
-    int num_threads = 16;  // Cambiar este valor para usar más o menos hilos
+    int num_threads = 32;  // Cambiar este valor para usar más o menos hilos
     pthread_t threads[num_threads];
     
     printf("Iniciando búsqueda de puntos fijos con %d hilos\n", num_threads);
