@@ -20,7 +20,7 @@ density = np.zeros((256, 50), dtype=int)
 
 fixed_points = defaultdict(lambda: defaultdict(list))
 
-for i in range(16):
+for i in range(32):
     filename = f"fixed-point-thread-{i}.txt"
     # print(f"Procesando {filename}...")
     with open(filename, "r") as f:
@@ -67,22 +67,24 @@ for i in range(16):
 
 max_keys = 0
 max_fixed_points = 0
+repeat_cyles = 0
 for fp, keys in fixed_points.items():
 
     if len(keys) > max_keys:
         max_keys = len(keys)
         max_fixed_points = fp
-    if len(keys) >= 4:
+    if len(keys) > 1:
+        repeat_cyles+=1
+        # print(f"Punto fijo: {fp}")
+        # print(f"Aparece en {len(keys)} llaves")
 
-        print(f"Punto fijo: {fp}")
-        print(f"Aparece en {len(keys)} llaves")
-
-# print(f"El punto fijo con más llaves es: {max_fixed_points} con {max_keys} llaves")
-# print(fixed_points[max_fixed_points])
-
+print(f"El punto fijo con más llaves es: {max_fixed_points} con {max_keys} llaves")
+print(fixed_points[max_fixed_points])
+print(f"Numero total de ciclos encontrados: {len(fixed_points)}")
+print(f"Numero total de ciclos que se repiten: {repeat_cyles}")
 
 
-exit(0)
+# exit(0)
 
 
 
@@ -121,6 +123,12 @@ print(f"Key: {best_key:02x}")
 print(f"Round: {best_round}")
 print(f"Score: {metric[best_pair]}")
 
+for (key_value, rnd), score in metric.items():
+
+    if(score>60):
+        print(f"  - Llave: {key_value:02x}, Rondas: {rnd}, Peso acumulado: { score }")
+
+
 x = []
 y = []
 sizes = []
@@ -142,7 +150,7 @@ scatter = plt.scatter(
     s=[20*s for s in sizes],
     c=sizes,
     alpha=0.7,
-    norm=LogNorm(),
+    # norm=LogNorm(),
 
 )
 
@@ -155,8 +163,13 @@ plt.xlabel("Key Byte")
 plt.ylabel("Rounds")
 
 plt.xticks(
-    range(0,256,16),
-    [f"{i:02x}" for i in range(0,256,16)]
+    range(0,256,8),
+    [f"{i:02x}" for i in range(0,256,8)]
+)
+
+plt.yticks(
+    range(0,50,1),
+    [f"{i}" for i in range(0,50,1)]
 )
 
 plt.title(

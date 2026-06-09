@@ -1,0 +1,41 @@
+# Ignorar imágenes (formatos comunes)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.bmp
+*.ico
+
+# Ignorar archivos de texto específicos solicitados
+*.txtx
+
+# Ignorar archivos de texto comunes (si se desea también evitar txt normales, descomentar)
+# *.txt
+
+# Ignorar archivos compilados / binarios
+*.o
+*.so
+*.dll
+*.exe
+*.out
+*.class
+*.jar
+
+# Directorios de build y binarios
+/build/
+/dist/
+/bin/
+/obj/
+
+# Caché / archivos generados por intérpretes
+__pycache__/
+*.pyc
+
+# Archivos temporales y de sistema
+*~
+.DS_Store
+
+# Configuraciones de editores/IDE locales
+.idea/
+.vscode/

@@ -15,7 +15,7 @@ import matplotlib.colors as mcolors # <-- 1. Importar módulo de colores
 density = np.zeros((256), dtype=int)
 
 
-for i in range(16):
+for i in range(32):
     filename = f"fixed-point-thread-{i}.txt"
     print(f"Procesando {filename}...")
     with open(filename, "r") as f:

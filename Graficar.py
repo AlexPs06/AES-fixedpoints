@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 density = np.zeros((256, 50), dtype=int)
 
 
-for i in range(16):
+for i in range(32):
     filename = f"fixed-point-thread-{i}.txt"
     print(f"Procesando {filename}...")
     with open(filename, "r") as f:
@@ -45,7 +45,7 @@ for i in range(16):
             # basta tomar el primer byte
             key_byte = int(key_hex[:2], 16)
             # Ajustar índice de rondas
-            if 1 <= rounds <= 30:
+            if 1 <= rounds <= 50:
                 density[key_byte, rounds - 1] += 1
         # if j>1000:
             # break
@@ -63,7 +63,7 @@ im = plt.imshow(
     cmap='turbo',
 )
 
-plt.colorbar(im, label='Cantidad de puntos fijos')
+plt.colorbar(im, label='Cantidad de ciclos')
 
 plt.xlabel('Rounds')
 plt.ylabel('Key Byte Value')
@@ -106,7 +106,7 @@ plt.yticks(
 #             )
 
 
-plt.title('Densidad de puntos fijos por llave y rondas')
+plt.title('Densidad de ciclos por llave y rondas')
 
 plt.tight_layout()
 plt.show()
