@@ -12,12 +12,12 @@ import matplotlib.colors as mcolors # <-- 1. Importar módulo de colores
 # Columnas -> rondas (1-50)
 # =========================
 
-density = np.zeros((256), dtype=int)
-fixed_points = 0
+cicles_per_round = np.zeros((51), dtype=int)
+
 
 for i in range(32):
     filename = f"fixed-point-thread-{i}.txt"
-    # print(f"Procesando {filename}...")
+    print(f"Procesando {filename}...")
     with open(filename, "r") as f:
         lines = f.readlines()
 
@@ -37,37 +37,34 @@ for i in range(32):
 
             rounds = int(match.group(1))
             key_hex = match.group(2)
-            
-            # Como la llave es:
-            # 010101...
-            # 020202...
-            # etc.
-            # basta tomar el primer byte
             key_byte = int(key_hex[:2], 16)
             # Ajustar índice de rondas
             if 1 <= rounds <= 50:
-                density[key_byte] += 1
-            if rounds == 1:
-                fixed_points=fixed_points+1
+                cicles_per_round[rounds] +=1
+    
 
 
 
-plt.figure(figsize=(16,8))
+
+
+plt.figure(figsize=(14, 8))
+
+
 
 plt.bar(
-    range(256),
-    density,
+    range(51),
+    cicles_per_round,
     width=0.7
 )
-plt.xlim(-0.5, 255.5)
+# plt.xlim(-0.5, 255.5)
 
-plt.xlabel("Key Byte")
-plt.ylabel("Cantidad de ciclos")
-plt.title("Ciclos por llave")
+plt.xlabel("Number of rounds")
+plt.ylabel("Total number of cycles")
+plt.title("Cycles per round")
 
 plt.xticks(
-    range(0,256,8),
-    [f"{i:02x}" for i in range(0,256,8)]
+    range(1,51,1),
+    [f"{i}" for i in range(1,51,1)]
 )
 plt.grid(
     axis='y',
@@ -80,7 +77,7 @@ min_key=0
 max_key=0
 cicles_bigger_than_0key=0
 total_points = 0
-for i, value in enumerate(density):
+for i, value in enumerate(cicles_per_round):
 
     if value > 0:
 
@@ -96,7 +93,6 @@ for i, value in enumerate(density):
 
     if value >= 461:
         cicles_bigger_than_0key = cicles_bigger_than_0key + 1
-        print(f"llave {i:02x}")
 
     total_points =total_points + value
 
@@ -112,6 +108,6 @@ print(f"Menor cantidad de ciclos: {min_value} en la llave {min_key:02x}")
 print(f"Mayor cantidad de ciclos: {max_value} en la llave {max_key:02x}")
 print(f"cantidad de ciclos totales: {total_points}")
 print(f"cantidad de llaves con ciclos mayores a los de la llave 0: {cicles_bigger_than_0key}")
-print(f"cantidad de puntos fijos totales: {fixed_points}")
+# print(f"cantidad de puntos fijos totales: {fixed_points}")
 plt.tight_layout()
 plt.show()

@@ -19,6 +19,7 @@ density = np.zeros((256, 50), dtype=int)
 
 
 fixed_points = defaultdict(lambda: defaultdict(list))
+j=0
 
 for i in range(32):
     filename = f"fixed-point-thread-{i}.txt"
@@ -32,7 +33,6 @@ for i in range(32):
     #Fixed Point: 12dc340112dc340112dc340112dc3401 | Rounds: 47 | Key: 00000000000000000000000000000000
 
     pattern = r"Fixed Point:\s*([0-9a-fA-F]+)\s*\|\s*Rounds:\s*(\d+)\s*\|\s*Key:\s*([0-9a-fA-F]+)"
-    j=0
 
     for line in lines:
         j += 1
@@ -53,133 +53,152 @@ for i in range(32):
 
             # fixed_points_dict[fixed_point].append((key_byte, rounds))
             fixed_points[fixed_point][key_byte].append(rounds)
-            # print(f"Fixed Point: {fixed_point}, Rondas: {rounds}, Llave: {key_hex}")
-            
-
-            # if 1 <= rounds <= 50:
-            #     density[key_byte, rounds - 1] += 1
-# print(fixed_points)
 
 
 
 
 
 
+print(j)
+j=0
 max_keys = 0
 max_fixed_points = 0
 repeat_cyles = 0
 for fp, keys in fixed_points.items():
-
     if len(keys) > max_keys:
         max_keys = len(keys)
         max_fixed_points = fp
     if len(keys) > 1:
-        repeat_cyles+=1
+        repeat_cyles=repeat_cyles+1 
+    # if len(keys) > 1 and ((fp[0:2] != fp[4:6] ) or (fp[2:4] != fp[6:8] )):
+        # j += len(keys)
         # print(f"Punto fijo: {fp}")
+        # print(f"Punto fijo: {fp[0:2]}")
+        # print(f"Punto fijo: {fp[2:4]}")
+        # print(f"Punto fijo: {fp[4:6]}")
+        # print(f"Punto fijo: {fp[6:8]}")
         # print(f"Aparece en {len(keys)} llaves")
+        # print(f"Aparece en {keys} llaves")
+        # exit(0)
 
-print(f"El punto fijo con más llaves es: {max_fixed_points} con {max_keys} llaves")
-print(fixed_points[max_fixed_points])
-print(f"Numero total de ciclos encontrados: {len(fixed_points)}")
-print(f"Numero total de ciclos que se repiten: {repeat_cyles}")
-
-
-# exit(0)
+# print(f"El punto fijo con más llaves es: {max_fixed_points} con {max_keys} llaves")
+# print(fixed_points[max_fixed_points])
 
 
+# print(f"Numero total de ciclos que no se repiten encontrados: {len(fixed_points)-repeat_cyles}")
+# print(f"Numero total de ciclos que se repiten: {repeat_cyles}")
 
+from collections import defaultdict
 
-metric = defaultdict(int)
+repetition_distribution = defaultdict(int)
 
 for fp, keys in fixed_points.items():
 
-    # número de llaves distintas que generan este FP
     num_keys = len(keys)
-
-   
-
-    # ignorar puntos fijos exclusivos
-    if num_keys <= 1:
-        continue
-    
-    # print(f"Punto fijo: {fp} aparece en {num_keys} llaves distintas")
-    # peso asociado a este FP
-    # weight = num_keys - 1
-
-    for key_byte, rounds_list in keys.items():
-        # key_value = int(key_byte, 16)
-
-        for rnd in rounds_list:
-
-            metric[(key_byte, rnd)] += 1
-            # print(f"  - Llave: {key_byte:02x}, Rondas: {rnd}, Peso acumulado: {metric[(key_byte, rnd)]}")
-    
-    # exit(0)
-best_pair = max(metric, key=metric.get)
-
-best_key, best_round = best_pair
-
-print(f"Key: {best_key:02x}")
-print(f"Round: {best_round}")
-print(f"Score: {metric[best_pair]}")
-
-for (key_value, rnd), score in metric.items():
-
-    if(score>60):
-        print(f"  - Llave: {key_value:02x}, Rondas: {rnd}, Peso acumulado: { score }")
+    if len(keys)>1:
+        repetition_distribution[num_keys] += 1
 
 
-x = []
-y = []
-sizes = []
+x = sorted(repetition_distribution.keys())
 
-for (key_value, rnd), score in metric.items():
+y = [repetition_distribution[k] for k in x]
 
-    x.append(key_value)
-    y.append(rnd)
+import matplotlib.pyplot as plt
 
-    sizes.append(score)
+plt.figure(figsize=(12,6))
 
+# bars = plt.bar(
+    # x,
+    # y,
+    # width=0.8,
+    # edgecolor='black'
+# )
 
-
-plt.figure(figsize=(16,10))
-
-scatter = plt.scatter(
+plots = plt.plot(
     x,
     y,
-    s=[20*s for s in sizes],
-    c=sizes,
-    alpha=0.7,
-    # norm=LogNorm(),
-
+    marker='o',      # puntos
+    linestyle='-',   # unir puntos
+    linewidth=2,
+    markersize=6
 )
-
-plt.colorbar(
-    scatter,
-    label="Peso acumulado"
-)
-
-plt.xlabel("Key Byte")
-plt.ylabel("Rounds")
 
 plt.xticks(
-    range(0,256,8),
-    [f"{i:02x}" for i in range(0,256,8)]
+    range(0,70,1),
+    [f"{i}" for i in range(0,70,1)]
 )
 
-plt.yticks(
-    range(0,50,1),
-    [f"{i}" for i in range(0,50,1)]
-)
+plt.xlabel("Número de llaves compartiendo el punto fijo")
+plt.ylabel("Cantidad de puntos fijos")
 
 plt.title(
-    "Regiones donde los puntos fijos se repiten"
+    "Distribución de puntos fijos compartidos"
 )
 
-plt.grid(True, alpha=0.3)
+plt.grid(
+    axis='y',
+    alpha=0.3
+)
+
+
+for i, value in enumerate(repetition_distribution):
+
+    if value > 0:
+
+        plt.text(
+            i,
+            value,
+            f"{value}",
+            ha='center',
+            va='bottom',
+            fontsize=9,
+            rotation=90
+        )
 
 plt.tight_layout()
 plt.show()
+
+
+
+
+# plt.figure(figsize=(16,10))
+
+# scatter = plt.scatter(
+#     x,
+#     y,
+#     s=[20*s for s in sizes],
+#     c=sizes,
+#     alpha=0.7,
+#     # norm=LogNorm(),
+
+# )
+
+# plt.colorbar(
+#     scatter,
+#     label="Peso acumulado"
+# )
+
+# plt.xlabel("Key Byte")
+# plt.ylabel("Rounds")
+
+# plt.xticks(
+#     range(0,256,8),
+#     [f"{i:02x}" for i in range(0,256,8)]
+# )
+
+# plt.yticks(
+#     range(0,50,1),
+#     [f"{i}" for i in range(0,50,1)]
+# )
+
+# plt.title(
+#     "Regiones donde los puntos fijos se repiten"
+# )
+
+# plt.grid(True, alpha=0.3)
+
+# plt.tight_layout()
+# plt.show()
 
 
 

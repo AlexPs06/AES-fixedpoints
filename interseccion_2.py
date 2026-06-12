@@ -68,8 +68,8 @@ for i in range(256):
         intersection_matrix[i,j] = len(shared)
         if (max_points_interseccion< len(shared)):
             max_points_interseccion=len(shared)
-            print("i: ", i, "j: ", j, "shared_size: ", len(shared))
-            print("shared_size: ", shared)
+            # print("i: ", i, "j: ", j, "shared_size: ", len(shared))
+            # print("shared_size: ", shared)
 
 
 
